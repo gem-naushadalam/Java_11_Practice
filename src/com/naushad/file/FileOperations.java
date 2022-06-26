@@ -1,13 +1,10 @@
 package com.naushad.file;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.function.Predicate;
-import java.util.stream.Stream;
 import java.util.logging.Logger;
 
 public class FileOperations {
@@ -25,23 +22,13 @@ public class FileOperations {
 
 
     public static String read(String path){
-        Predicate<String> includeZero = s -> getIntValueFromString(s.trim()) == null || getIntValueFromString(s.trim()) == 0;
-        Predicate<String> notIncludeZero = Predicate.not(includeZero);
+        Predicate<String> includeZero = s -> getIntValueFromString(s.strip()) == null || getIntValueFromString(s.strip()) == 0;
 
         StringBuilder contentBuilder = new StringBuilder();
 
-        try (Stream<String> stream
-                     = Files.lines(Paths.get(path), StandardCharsets.UTF_8))
-        {
-            //Read the content with Stream and appending to string builder
-            stream.filter(notIncludeZero)
-                    .map(s -> getIntValueFromString(s.trim()))
-                    .forEach(value -> contentBuilder.append(value+5).append("\n"));
-        }
-        catch (IOException e)
-        {
-            logger.severe("Exception occurred while reading file - " + e.getMessage());
-        }
+        readFile(path).lines().filter(Predicate.not(includeZero))
+                .map(s -> getIntValueFromString(s.strip()))
+                .forEach(value -> contentBuilder.append(value+5).append("\n"));
 
         return contentBuilder.toString();
     }
